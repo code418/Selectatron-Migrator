@@ -54,8 +54,7 @@ class Selectatron_migrator_mcp {
 	 */
 	public function index()
 	{
-		$this->EE->cp->set_variable('cp_page_title', 
-								lang('selectatron_migrator_module_name'));
+		$this->EE->view->cp_page_title = lang('selectatron_migrator_module_name');
 
 		$vars = array();
 		$vars['base_url'] = $this->_base_url;
