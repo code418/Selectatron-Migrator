@@ -34,12 +34,10 @@ class Selectatron_migrator_mcp {
 	 * Constructor
 	 */
 	public function __construct()
-	{
-		$this->EE =& get_instance();
-		
-		$this->_base_url = BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=selectatron_migrator';
-		$this->EE->load->library('table');
-		$this->EE->cp->set_right_nav(array(
+	{	
+		$this->_base_url = ee('CP/URL')->make('addons/settings/selectatron_migrator')->compile();
+		ee()->load->library('table');
+		ee()->cp->set_right_nav(array(
 			'module_home'	=> $this->_base_url,
 			// Add more right nav items here.
 		));
@@ -54,15 +52,14 @@ class Selectatron_migrator_mcp {
 	 */
 	public function index()
 	{
-		$this->EE->cp->set_variable('cp_page_title', 
-								lang('selectatron_migrator_module_name'));
+		ee()->view->cp_page_title = lang('selectatron_migrator_module_name');
 
 		$vars = array();
 		$vars['base_url'] = $this->_base_url;
 		$vars['cleanup_required'] = FALSE;
 
 		// get all our selectatron fields
-		$sel_fields = $this->EE->db->get_where(
+		$sel_fields = ee()->db->get_where(
 			'channel_fields', 
 			 array(
 			 	'field_type' => 'the_selectatron'
@@ -101,7 +98,7 @@ class Selectatron_migrator_mcp {
 		if(!isset($vars['fields']))
 		{
 
-			$munted = $this->EE->db->get_where('relationships', array('field_id' => 0));
+			$munted = ee()->db->get_where('relationships', array('field_id' => 0));
 
 			if ($munted->num_rows() > 0)
 			{
@@ -110,31 +107,31 @@ class Selectatron_migrator_mcp {
 
 		}
 
-		return $this->EE->load->view('index', $vars, TRUE);
+		return ee()->load->view('index', $vars, TRUE);
 
 	}
 
 	public function cleanup_leftovers()
 	{
-		$this->EE->db->delete('relationships', array('field_id' => 0)); 
+		ee()->db->delete('relationships', array('field_id' => 0)); 
 
-		$this->EE->session->set_flashdata('message_success', 'Leftovers are cleaned up.');
-		$this->EE->functions->redirect( $this->_base_url );
+		ee()->session->set_flashdata('message_success', 'Leftovers are cleaned up.');
+		ee()->functions->redirect( $this->_base_url );
 	}
 
 	public function update_field()
 	{
-		$field_id = $this->EE->input->get('id');
-		$channels = explode('|', $this->EE->input->get('channels') );
+		$field_id = ee()->input->get('id');
+		$channels = explode('|', ee()->input->get('channels') );
 
 		if(!$field_id)
 			show_error('No field supplied');
 
 		$field = 'field_id_'.$field_id;
 
-		$this->EE->db->select('entry_id, channel_id, '.$field);
-		$this->EE->db->where( $field.' !=', ' ');
-		$rows = $this->EE->db->get('channel_data')->result_array();
+		ee()->db->select('entry_id, channel_id, '.$field);
+		ee()->db->where( $field.' !=', ' ');
+		$rows = ee()->db->get('channel_data')->result_array();
 
 
 		foreach($rows as $row)
@@ -145,8 +142,8 @@ class Selectatron_migrator_mcp {
 
 			foreach($rels as $rel)
 			{
-				$this->EE->db->select('entry_id, channel_id');
-				$rel_data = $this->EE->db->get_where(
+				ee()->db->select('entry_id, channel_id');
+				$rel_data = ee()->db->get_where(
 					'channel_titles',
 					array(
 						'entry_id' => $rel
@@ -159,9 +156,9 @@ class Selectatron_migrator_mcp {
 					if(in_array($rel_data['channel_id'], $channels))
 					{
 
-						$this->EE->db->where('parent_id', $row['entry_id']);
-						$this->EE->db->where('child_id', $rel_data['entry_id'] );
-						$existing_rel = $this->EE->db->get('relationships');
+						ee()->db->where('parent_id', $row['entry_id']);
+						ee()->db->where('child_id', $rel_data['entry_id'] );
+						$existing_rel = ee()->db->get('relationships');
 
 						// base data for insert or update
 						$data = array(
@@ -172,9 +169,9 @@ class Selectatron_migrator_mcp {
 						// existing rel found
 						if ($existing_rel->num_rows() > 0)
 						{
-							$this->EE->db->where('parent_id', $row['entry_id']);
-							$this->EE->db->where('child_id', $rel_data['entry_id'] );
-							$this->EE->db->update('relationships', $data);
+							ee()->db->where('parent_id', $row['entry_id']);
+							ee()->db->where('child_id', $rel_data['entry_id'] );
+							ee()->db->update('relationships', $data);
 						}
 						// create the rel
 						else
@@ -182,7 +179,7 @@ class Selectatron_migrator_mcp {
 							$data['parent_id'] = $row['entry_id'];
 							$data['child_id'] = $rel_data['entry_id'];
 
-							$this->EE->db->insert('relationships', $data);
+							ee()->db->insert('relationships', $data);
 						}
 						
 					}
@@ -215,11 +212,11 @@ class Selectatron_migrator_mcp {
 			'field_type' => 'relationship',
 			'field_settings' => base64_encode(serialize($settings))
 		);
-		$this->EE->db->where('field_id', $field_id);
-		$this->EE->db->update('channel_fields', $data);
+		ee()->db->where('field_id', $field_id);
+		ee()->db->update('channel_fields', $data);
 
-		$this->EE->session->set_flashdata('message_success', 'Field Migrated!');
-		$this->EE->functions->redirect( $this->_base_url );
+		ee()->session->set_flashdata('message_success', 'Field Migrated!');
+		ee()->functions->redirect( $this->_base_url );
 
 	}
 

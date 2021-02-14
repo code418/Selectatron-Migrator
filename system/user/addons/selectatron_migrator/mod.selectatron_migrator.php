@@ -33,15 +33,7 @@ class Selectatron_migrator {
 	 */
 	public function __construct()
 	{
-		$this->EE =& get_instance();
+		
 	}
-	
-	// ----------------------------------------------------------------
 
-	/**
-	 * Start on your custom code here...
-	 */
-	
 }
-/* End of file mod.selectatron_migrator.php */
-/* Location: /system/expressionengine/third_party/selectatron_migrator/mod.selectatron_migrator.php */
