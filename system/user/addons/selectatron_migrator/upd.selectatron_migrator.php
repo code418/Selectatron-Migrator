@@ -35,7 +35,6 @@ class Selectatron_migrator_upd {
 	 */
 	public function __construct()
 	{
-		$this->EE =& get_instance();
 	}
 	
 	// ----------------------------------------------------------------
@@ -54,9 +53,9 @@ class Selectatron_migrator_upd {
 			'has_publish_fields'	=> 'n'
 		);
 		
-		$this->EE->db->insert('modules', $mod_data);
+		ee()->db->insert('modules', $mod_data);
 		
-		// $this->EE->load->dbforge();
+		// ee()->load->dbforge();
 		/**
 		 * In order to setup your custom tables, uncomment the line above, and 
 		 * start adding them below!
@@ -74,18 +73,18 @@ class Selectatron_migrator_upd {
 	 */	
 	public function uninstall()
 	{
-		$mod_id = $this->EE->db->select('module_id')
+		$mod_id = ee()->db->select('module_id')
 								->get_where('modules', array(
 									'module_name'	=> 'Selectatron_migrator'
 								))->row('module_id');
 		
-		$this->EE->db->where('module_id', $mod_id)
+		ee()->db->where('module_id', $mod_id)
 					 ->delete('module_member_groups');
 		
-		$this->EE->db->where('module_name', 'Selectatron_migrator')
+		ee()->db->where('module_name', 'Selectatron_migrator')
 					 ->delete('modules');
 		
-		// $this->EE->load->dbforge();
+		// ee()->load->dbforge();
 		// Delete your custom tables & any ACT rows 
 		// you have in the actions table
 		
